@@ -1,18 +1,26 @@
-resource "aws_vpc" "tf_cloud" {
-  cidr_block = var.vpc_cidr
-
-  tags = {
-    Name = "terraform-cloud"
-  }
+moved {
+  from = aws_vpc.tf_cloud
+  to   = module.networking.aws_vpc.this
 }
 
-resource "aws_subnet" "tf_cloud" {
-  vpc_id            = aws_vpc.tf_cloud.id
-  cidr_block        = var.subnet_cidr
-  availability_zone = "us-east-1a"
+moved {
+  from = aws_subnet.tf_cloud
+  to   = module.networking.aws_subnet.this["subnet_1"]
+}
 
-  tags = {
-    "Name" = "tf_cloud_subnet"
+module "networking" {
+  source  = "app.terraform.io/terraform-cloud-organization-navarroman/networking/aws"
+  version = "0.1.1"
+  # insert required variables here
+  vpc_config = {
+    cidr_block = var.vpc_cidr
+    name       = "terraform-cloud"
   }
 
+  subnet_config = {
+    subnet_1 = {
+      cidr_block = "10.0.0.0/24"
+      az         = "us-east-1a"
+    }
+  }
 }
